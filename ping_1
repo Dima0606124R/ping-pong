@@ -1,131 +1,23 @@
-import pygame
-pygame.init()
-h = 200
-w = 300
-Green = (0,255,0)
-RED = (255,0,0)
+from pygame import *
 blue = (63, 226, 235)
-black = (0, 0, 0)
-x_cor = 200
-y_cor = 330 
-monstrik_x = 5
-monstrik_y = 5
-monsters = []
+speed = 10
 game_over = False
-move_right = False
-move_left = False
-racket_x = 200
-racket_y = 500
-ball_x = 2
-ball_y = 2
-class TextArea():
-    def __init__(self, x=0, y=0, width=10, height=10, color=None):
-        self.rect = pygame.Rect(x, y, width, height)
-        self.fill_color = blue
-        if color:  
-            self.fill_color = color
-    def outline(self, frame_color, thickness):
-        pygame.draw.rect(mw, frame_color, self.rect, thickness)
-    def fill(self):
-        pygame.draw.rect(mw, self.fill_color, self.rect)
-    def color(self, new_color):
-        self.fill_color = new_color
-    def colliderect(self, rect):
-        return self.rect.colliderect(rect)
-
-class Label(TextArea):
-    def set_text(self, text, fsize=12, text_color=black):
-        self.image = pygame.font.SysFont('verdana', fsize).render(text, True, text_color) 
-    def draw(self, shift_x=0, shift_y=0):
-        self.fill()
-        mw.blit(self.image, (self.rect.x + shift_x, self.rect.y + shift_y)) 
-
-class TextArea2(TextArea):
-    def __init__(self, filename, x=0, y=0, width=10, height=10):                # Это метод инициализации объекта класса (конструктор) + инициализация свойств объекта класса(поля).
-        TextArea.__init__(self, x=x, y=y, width=width, height=height, color=None)   # Вызывает конструктор родительского класса Area для того, чтобы не дублировать код, переносит все свойства(поля) из Area.
-        self.image = pygame.image.load(filename)                                # Загрузка изображения из файла.
-    def draw(self, shift_x=0, shift_y=0):                                  # Отрисовка изображения на экране.
-        mw.blit(self.image, (self.rect.x, self.rect.y)) # Отрисовывает изображение (self.image) на экране в указанных координатах.
-
-mw = pygame.display.set_mode(500, 500)
+def update_1():
+    keys = key.get_pressed()
+    if keys[K_W] and rect.y > 5:
+        rect.y -= speed
+def update_2():
+    keys = key.get_pressed()
+    if keys[K_UP] and rect.y > 5:
+        rect.y -= speed
+mw = display.set_mode((700, 500))
+display.set_caption('Ping-Pong')
 mw.fill(blue)
-clock = pygame.time.Clock()
-bal = TextArea2('ball.png', 160, 200, 50, 50)
-platforma = TextArea2('platform.png', racket_x, racket_y, 100, 30)
-platforma.draw(0,0)
-
-bal.draw(0,0)
-col_monstrik = 9
-for j in range(3):
-    monstrik1x = monstrik_x + (27.5 * j)
-    monstrik1y = monstrik_y + (55 * j)
-    for i in range(col_monstrik):
-        monstr = TextArea2('enemy.png', monstrik1x, monstrik1y, 50, 50)
-        monstr.draw(0,0)
-        monsters.append(monstr)
-        monstrik1x += 55
-    col_monstrik -= 1
-Win = TextArea(100, 200, 120, 80, Green)
-choid = 0
-score = Label(200, 600, 170, 40, blue)   
-score.set_text(f'Score: {choid}', 40, black)
+clock = time.Clock()
 while not game_over:
-    pygame.display.update()
-    clock.tick(100)
-
-
     mw.fill(blue)
-    bal.rect.x += ball_x
-    bal.rect.y += ball_y
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: 
+    for e in event.get():
+        if e.type == QUIT: 
             game_over = True
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                move_left = True
-            elif event.key == pygame.K_d:
-                move_right = True
-        elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                move_left = False
-            elif event.key == pygame.K_d:
-                move_right = False      
-    if move_left == True:
-        platforma.rect.x -= 3
-    elif move_right == True:
-        platforma.rect.x += 3
-    if bal.rect.colliderect(platforma.rect):
-        ball_y *= -1
-    if bal.rect.x > 450 or bal.rect.x < 0:
-        ball_x *= -1
-    if bal.rect.y < 0:
-        ball_y *= -1
-    if bal.rect.y >=550:
-        mw.fill(blue)
-        Lose = Label(0, 0, 500, 800, RED)   
-        Lose.set_text('You Lose :(', 80, black)
-        Lose.draw(150,200)
-        pygame.display.flip()
-        break
-    if len(monsters) < 1:
-        fill()
-        
-        Lose = Label(0, 0, 500, 800, Green)   
-        Lose.set_text('You win :)', 80, black)
-        Lose.draw(150,200)
-        pygame.display.flip()
-        break
-    
-    platforma.draw(0,0)
-    bal.draw(0,0)
-    score.draw(0,0)
-
-    for m in monsters:
-        m.draw()
-        if m.rect.colliderect(bal.rect):
-            monsters.remove(m)
-            
-            choid = 24 - len(monsters)
-            score.set_text(f'Score: {choid}', 40, black)
-            ball_y *= -1
-    
+    display.update()
+    clock.tick(100)
