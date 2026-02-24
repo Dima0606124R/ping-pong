@@ -3,8 +3,9 @@ from random import *
 clock = time.Clock()
 from time import *
 mixer.init()
-ball_x = 2
-ball_y = 2
+font.init()
+speed_x = 3
+speed_y = 3
 speed = 5
 win_width = 700
 win_height = 500
@@ -30,9 +31,11 @@ money = mixer.Sound("C:\\Users\\user\\Desktop\\new\\audio\\x\\money.ogg")
 mixer.music.play()
 
 class GameSprite(sprite.Sprite):
-    def __init__(self, player_image, player_x, player_y, player_speed):
+    def __init__(self, player_image, player_x, player_y, player_speed, player_height, player_width):
         super().__init__()
-        self.image = transform.scale(image.load(player_image), (60,150))
+        self.player_height = player_height
+        self.player_height = player_height
+        self.image = transform.scale(image.load(player_image), (player_height, player_width))
         self.rect = self.image.get_rect()
         self.rect.x = player_x
         self.player_y = player_y
@@ -49,32 +52,23 @@ class Player(GameSprite):
         if keys_pressed[K_s] and self.rect.y < win_height - 150:
             self.rect.y += self.speed
 class Enemy(GameSprite):
-    direction = "Up"
     def update(self):
-        if self.rect.y <= 0 :
-            self.direction = "Down"
-        if self.rect.y > win_height- 150:
-            self.direction = "Up"
-        if self.direction == 'Up':
+        keys_pressed = key.get_pressed()
+        if keys_pressed[K_UP] and self.rect.y > 5:
             self.rect.y -= self.speed
-        if self.direction == "Down":
+        if keys_pressed[K_DOWN] and self.rect.y < win_height - 150:
             self.rect.y += self.speed
-class GameSprite2(GameSprite):
-    def __init__(self, player_image, player_x, player_y, player_speed):
-        self.image = transform.scale(image.load(player_image), (50,50))
-        self.rect = self.image.get_rect()
-        self.rect.x = player_x
-        self.player_y = player_y
-        self.speed = player_speed
-        
-bal = GameSprite2("C:\\Users\\user\\Desktop\\ballll.png", 50, 50, speed-1)
-packman = Player("C:\\Users\\user\\Desktop\\spritepai.png", 30, 150, speed)
-packman2 = Enemy("C:\\Users\\user\\Desktop\\spritepai.png", 600, 150, speed)
+font1 = font.Font(None, 35)  
+lose1 = font1.render("First player lose!!!", True, (180, 0, 0))
+lose2 = font1.render("Second player lose!!!", True, (180, 0, 0))
+bal = GameSprite("C:\\Users\\user\\Desktop\\balll.png",350, 150, speed-1, 50, 50)
+packman = Player("C:\\Users\\user\\Desktop\\spritepai.png", 30, 150, speed, 60, 150)
+packman2 = Enemy("C:\\Users\\user\\Desktop\\spritepai.png", 600, 150, speed, 60, 150)
 game = True
-while game:
+while game != False:
     window.blit(backround, (0,0))
-    bal.rect.x += ball_x
-    bal.rect.y += ball_y
+    bal.rect.x += speed_x
+    bal.rect.y += speed_y
     packman.update()
     packman2.update()
     packman.reset()
@@ -82,14 +76,16 @@ while game:
     bal.update()
     bal.reset()
     
-    if bal.rect.colliderect(packman.rect):
-        ball_y *= -1
-    if bal.rect.y > 450 or bal.rect.y < 0:
-        ball_x *= -1
-    if bal.rect.x < 0:
-        ball_y *= -1
-    if bal.rect.x >=650:
-        score += 1
+    if sprite.collide_rect(packman, bal) or sprite.collide_rect(packman2, bal):
+        speed_x *= -1
+    if bal.rect.y > win_height - 50 or bal.rect.y <= 0:
+        speed_y *= -1
+    if bal.rect.x <= 0:
+        window.blit(lose1, (200, 200))
+        game = False
+    if bal.rect.x >= 650:
+        window.blit(lose2, (200, 200))
+        game = False
     for e in event.get():
         if e.type == QUIT:
             game = False
