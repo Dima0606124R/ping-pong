@@ -1,23 +1,98 @@
 from pygame import *
-blue = (63, 226, 235)
-speed = 10
-game_over = False
-def update_1():
-    keys = key.get_pressed()
-    if keys[K_W] and rect.y > 5:
-        rect.y -= speed
-def update_2():
-    keys = key.get_pressed()
-    if keys[K_UP] and rect.y > 5:
-        rect.y -= speed
-mw = display.set_mode((700, 500))
-display.set_caption('Ping-Pong')
-mw.fill(blue)
+from random import *
 clock = time.Clock()
-while not game_over:
-    mw.fill(blue)
+from time import *
+mixer.init()
+ball_x = 2
+ball_y = 2
+speed = 5
+win_width = 700
+win_height = 500
+window = display.set_mode((win_width, win_height))
+display.set_caption('Догонялки')
+backround = transform.scale(image.load("C:\\Users\\user\\Desktop\\new\\textures\\fon\\fon.png"), (700,500))
+
+rand = randint(1,5)
+
+if rand == 1:
+    mixer.music.load('C:\\Users\\user\\Desktop\\new\\audio\\music(fon)\\maincraft1.mp3')
+elif rand == 2:
+    mixer.music.load('C:\\Users\\user\\Desktop\\new\\audio\\music(fon)\\maincraft2.mp3')
+elif rand == 3:
+    mixer.music.load('C:\\Users\\user\\Desktop\\new\\audio\\music(fon)\\maincraft3.mp3')
+elif rand == 4:
+    mixer.music.load('C:\\Users\\user\\Desktop\\new\\audio\\music(fon)\\maincraft4.mp3')
+elif rand == 5:
+    mixer.music.load('C:\\Users\\user\\Desktop\\new\\audio\\music(fon)\\maincraft5.mp3')
+
+kick = mixer.Sound("C:\\Users\\user\\Desktop\\new\\audio\\x\\kick.ogg")
+money = mixer.Sound("C:\\Users\\user\\Desktop\\new\\audio\\x\\money.ogg")
+mixer.music.play()
+
+class GameSprite(sprite.Sprite):
+    def __init__(self, player_image, player_x, player_y, player_speed):
+        super().__init__()
+        self.image = transform.scale(image.load(player_image), (60,150))
+        self.rect = self.image.get_rect()
+        self.rect.x = player_x
+        self.player_y = player_y
+        self.speed = player_speed
+        
+    def reset(self):
+        window.blit(self.image, (self.rect.x, self.rect.y))
+
+class Player(GameSprite):
+    def update(self):
+        keys_pressed = key.get_pressed()
+        if keys_pressed[K_w] and self.rect.y > 5:
+            self.rect.y -= self.speed
+        if keys_pressed[K_s] and self.rect.y < win_height - 150:
+            self.rect.y += self.speed
+class Enemy(GameSprite):
+    direction = "Up"
+    def update(self):
+        if self.rect.y <= 0 :
+            self.direction = "Down"
+        if self.rect.y > win_height- 150:
+            self.direction = "Up"
+        if self.direction == 'Up':
+            self.rect.y -= self.speed
+        if self.direction == "Down":
+            self.rect.y += self.speed
+class GameSprite2(GameSprite):
+    def __init__(self, player_image, player_x, player_y, player_speed):
+        self.image = transform.scale(image.load(player_image), (50,50))
+        self.rect = self.image.get_rect()
+        self.rect.x = player_x
+        self.player_y = player_y
+        self.speed = player_speed
+        
+bal = GameSprite2("C:\\Users\\user\\Desktop\\ballll.png", 50, 50, speed-1)
+packman = Player("C:\\Users\\user\\Desktop\\spritepai.png", 30, 150, speed)
+packman2 = Enemy("C:\\Users\\user\\Desktop\\spritepai.png", 600, 150, speed)
+game = True
+while game:
+    window.blit(backround, (0,0))
+    bal.rect.x += ball_x
+    bal.rect.y += ball_y
+    packman.update()
+    packman2.update()
+    packman.reset()
+    packman2.reset()
+    bal.update()
+    bal.reset()
+    
+    if bal.rect.colliderect(packman.rect):
+        ball_y *= -1
+    if bal.rect.y > 450 or bal.rect.y < 0:
+        ball_x *= -1
+    if bal.rect.x < 0:
+        ball_y *= -1
+    if bal.rect.x >=650:
+        score += 1
     for e in event.get():
-        if e.type == QUIT: 
-            game_over = True
+        if e.type == QUIT:
+            game = False
     display.update()
-    clock.tick(100)
+    FPS = 60
+    clock.tick(FPS)
